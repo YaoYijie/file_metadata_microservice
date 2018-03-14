@@ -1,0 +1,156 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<html>
+<head>
+	<title>菜单发送记录管理</title>
+	<meta name="decorator" content="ani"/>
+	<script type="text/javascript">
+
+		$(document).ready(function() {
+			$("#inputForm").validate({
+					rules: {
+						enddate: {
+			        depends: function(element) {
+			        	var endDate = $('#date').val();
+  						  var now = new Date();
+  						  var eDate = new Date(endDate);
+  						  var eDate1  = new Date(eDate.getTime() + 57540000 + 59000);
+  						  //alert("eDate: " + eDate + "\n" + "now: " + now + "\n" + "eDate1: " + eDate1 + "\n" + (now.getTime() - eDate1.getTime()));
+  						  
+  						  if((now.getTime() - eDate1.getTime()) < 0){
+  								$('#edit').prop('disabled',false);
+  							  return true;
+  						  }else{
+  							  jp.error("请选择有效的截至日期！");
+  								$('#edit').prop('disabled',true);
+  							  return false;
+  						  } 
+			        }
+			      }
+				  },	
+				submitHandler: function(form){
+					jp.loading();
+					form.submit();
+				},
+				errorContainer: "#messageBox",
+				errorPlacement: function(error, element) {
+					$("#messageBox").text("输入有误，请先更正。");
+					if (element.is(":checkbox")||element.is(":radio")||element.parent().is(".input-append")){
+						error.appendTo(element.parent().parent());
+					} else {
+						error.insertAfter(element);
+					}
+				}
+			});
+			
+	        $('#begindate').datetimepicker({
+				 format: "YYYY-MM-DD"
+		    });
+	        $('#enddate').datetimepicker({
+				 format: "YYYY-MM-DD"
+		    });
+	        
+		});
+		
+		/*
+		function check(){
+			  var endDate = $('#date').val();
+			  var now = new Date();
+			  var eDate = new Date(endDate);
+			  var eDate1  = new Date(eDate.getTime() + 57540000 + 59000);
+			  alert("eDate: " + eDate + "\n" + "now: " + now + "\n" + "eDate1: " + eDate1 + "\n" + (now.getTime() - eDate1.getTime()));
+			  
+			  if((now.getTime() - eDate1.getTime()) > 0){
+				  return false;
+			  }else{
+				  jp.error("请选择有效的截至日期！");
+				  return false;
+			  } 
+		}*/
+	</script>
+</head>
+<body>
+<div class="wrapper wrapper-content">				
+<div class="row">
+	<div class="col-md-12">
+	<div class="panel panel-primary">
+		<div class="panel-body">
+		<form:form id="inputForm" modelAttribute="jxcdfsjl" action="${ctx}/cdfsjl/jxcdfsjl/saves/" method="post" class="form-horizontal">
+		<form:hidden path="id"/>
+		<sys:message content="${message}"/>	
+				<!-- <div class="form-group">
+					<label class="col-sm-2 control-label">菜单表id：</label>
+					<div class="col-sm-10">
+						<form:input path="cdid" htmlEscape="false"    class="form-control " readonly="true"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">发送人：</label>
+					<div class="col-sm-10">
+            <form:input path="user2.name" htmlEscape="false"    class="form-control " readonly="true"/>
+						<sys:userselect id="user2" name="user2.id" value="${jxcdfsjl.user2.id}" labelName="user2.name" labelValue="${jxcdfsjl.user2.name}"
+							    cssClass="form-control"/>
+					</div>
+				</div>  -->
+				<div class="form-group">
+					<label class="col-sm-2 control-label">填报人：</label>
+					<div class="col-sm-10">
+						<sys:userselect id="user" name="user.id" value="${jxcdfsjl.user.id}" labelName="user.name" labelValue="${jxcdfsjl.user.name}"
+							    cssClass="form-control" />
+					</div>
+				</div>
+				<!-- <div class="form-group">
+					<label class="col-sm-2 control-label">开始时间：</label>
+					<div class="col-sm-10">
+						<p class="input-group">
+							<div class='input-group form_datetime' id='begindate'>
+                  <fmt:parseDate value="${jxcdfsjl.begindate}" pattern="yyyy-MM-dd" var="myDate"/>
+                  <input type='text'  name="begindate" class="form-control"  value="<fmt:formatDate value="${myDate}" pattern="yyyy-MM-dd HH:mm:ss"/>"/>
+                  <span class="input-group-addon">
+                      <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+              </div>						            
+			            </p>
+					</div>
+				</div>  -->
+				<div class="form-group">
+					<label class="col-sm-2 control-label">截止日期：</label>
+					<div class="col-sm-10">
+						<p class="input-group">
+							<div class='input-group form_datetime' id='enddate'>
+                <fmt:parseDate value="${jxcdfsjl.enddate}" pattern="yyyy-MM-dd" var="myDate2"/>
+                <input id="date" type='text'  name="enddate" class="form-control"  value="<fmt:formatDate value="${myDate2}" pattern="yyyy-MM-dd"/>" required/>
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+              </div>						            
+			            </p>
+					</div>
+				</div>
+				<!-- <div class="form-group">
+					<label class="col-sm-2 control-label">状id：</label>
+					<div class="col-sm-10">
+						<form:select path="ztid" class="form-control " disabled="true">
+							<form:option value="" label=""/>
+							<form:options items="${fns:getDictList('sfjl_type')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+						</form:select>
+					</div>
+				</div> -->
+		<c:if test="${fns:hasPermission('cdfsjl:jxcdfsjl:edit') || isAdd}">
+				<div class="col-lg-3"></div>
+		        <div class="col-lg-6">
+		             <div class="form-group text-center">
+		                 <div>
+		                     <button id="edit" class="btn btn-primary btn-block btn-lg btn-parsley" data-loading-text="正在提交..." disabled="disabled">确 认 修 改</button>
+		                 </div>
+		             </div>
+		        </div>
+		</c:if>
+		</form:form>
+		</div>				
+	</div>
+	</div>
+</div>
+</div>
+</body>
+</html>
